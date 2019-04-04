@@ -107,14 +107,15 @@ func TestArtikel(t *testing.T) {
 
 func TestUpdateArtikel(t *testing.T) {
 
-	req, _ := http.NewRequest("GET", "/artikel/5", nil)
+	req, _ := http.NewRequest("GET", "/artikel/12", nil)
 	response := executeRequest(req)
-	var originalUser map[string]interface{}
-	json.Unmarshal(response.Body.Bytes(), &originalUser)
+
+	var originalArtikel map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &originalArtikel)
 
 	payload := []byte(`{"eancode": "888888888"}`)
 
-	req, _ = http.NewRequest("PUT", "/artikel/5", bytes.NewBuffer(payload))
+	req, _ = http.NewRequest("PUT", "/artikel/12", bytes.NewBuffer(payload))
 	response = executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -122,11 +123,11 @@ func TestUpdateArtikel(t *testing.T) {
 	var m map[string]interface{}
 	json.Unmarshal(response.Body.Bytes(), &m)
 
-	if m["id"] != originalUser["id"] {
-		t.Errorf("Expected the id to remain the same (%v). Got %v", originalUser["id"], m["id"])
+	if m["id"] != originalArtikel["id"] {
+		t.Errorf("Expected the id to remain the same (%v). Got %v", originalArtikel["id"], m["id"])
 	}
 
-	if m["eancode"] == originalUser["eancode"] {
-		t.Errorf("Expected the eancode to change from '%v' to '%v'. Got '%v'", originalUser["eancode"], m["eancode"], m["eancode"])
+	if m["eancode"] == originalArtikel["eancode"] {
+		t.Errorf("Expected the eancode to change from '%v' to '%v'. Got '%v'", originalArtikel["eancode"], m["eancode"], m["eancode"])
 	}
 }
