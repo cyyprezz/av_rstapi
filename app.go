@@ -43,6 +43,29 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/artikel", a.getArtikels).Methods("GET")
 	a.Router.HandleFunc("/artikel/{id:[0-9]+}", a.getArtikel).Methods("GET")
 	a.Router.HandleFunc("/artikel/{id:[0-9]+}", a.updateArtikel2).Methods("PUT")
+	a.Router.HandleFunc("/artikellager/{id:[0-9]+}", a.getEinzellagerbyArtikel).Methods("GET")
+	a.Router.HandleFunc("/lagerumbuchungen", a.createLagerumbuchung).Methods("POST")
+
+}
+func (a *App) getEinzellagerbyArtikel(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Artikel-ID")
+		return
+	}
+	u := Artikel{ID: id}
+	products, err := u.getEinzelLagerbyArtikelID(a.DB)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			respondWithError(w, http.StatusNotFound, "Lager not found")
+		default:
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+	respondWithJSON(w, http.StatusOK, products)
 
 }
 
@@ -125,6 +148,22 @@ func (a *App) getLager(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	respondWithJSON(w, http.StatusOK, u)
+}
+
+func (a *App) createLagerumbuchung(w http.ResponseWriter, r *http.Request) {
+	var u Lagerumbuchungen
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&u); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+
+	if err := u.createLagerumbuchung(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondWithJSON(w, http.StatusCreated, u)
 }
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

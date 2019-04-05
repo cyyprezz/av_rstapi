@@ -89,3 +89,55 @@ func getArtikels(db *sqlx.DB) ([]Artikel, error) {
 	}
 	return artikels, nil
 }
+
+type EinzelLager struct {
+	ID         int    `json:"ID"`
+	BSAID      int    `json:"BSA_ID_LINKKEY"`
+	BlagerID   int    `json:"BLAGER_ID_LAGERNR"`
+	ISTBestand string `json:"list"`
+}
+
+func (u *Artikel) getEinzelLagerbyArtikelID(db *sqlx.DB) ([]EinzelLager, error) {
+	rows, err := db.Queryx("SELECT ID,BLAGER_ID_LAGERNR,LIST FROM BARTLH WHERE BSA_ID_LINKKEY=?", u.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	einzellager := []EinzelLager{}
+
+	for rows.Next() {
+		var a EinzelLager
+		if err := rows.Scan(&a.ID, &a.BlagerID, &a.ISTBestand); err != nil {
+			return nil, err
+		}
+		einzellager = append(einzellager, a)
+	}
+	return einzellager, nil
+}
+
+type Lagerumbuchungen struct {
+	ID         int     `json:"ID"`
+	BSAID      int     `json:"BSA_ID_ARTNR"`
+	Menge      float32 `json:"MENGE"`
+	InLagerID  int     `json:"BARTLH_ID_INLAGER"`
+	VonLagerID int     `json:"BARTLH_ID_VONLAGER"`
+}
+
+func (u *Lagerumbuchungen) createLagerumbuchung(db *sqlx.DB) error {
+	_, err := db.NamedExec(`INSERT INTO BLAGVE(BSA_ID_ARTNR,MENGE,BARTLH_ID_INLAGER,BARTLH_ID_VONLAGER,LLDRUCKEN,BMAND_ID) VALUES (:bsaid,:menge,:inlager,:vonlager,'N',1)`,
+		map[string]interface{}{
+			"bsaid":    u.BSAID,
+			"menge":    u.Menge,
+			"inlager":  u.InLagerID,
+			"vonlager": u.VonLagerID,
+		})
+	if err != nil {
+		return err
+	}
+	err = db.QueryRow("SELECT max(id) FROM BARTLH").Scan(&u.ID)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}

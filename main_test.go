@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -105,6 +106,15 @@ func TestArtikel(t *testing.T) {
 	}
 }
 
+func TestLagerbyArtikel(t *testing.T) {
+
+	req, _ := http.NewRequest("GET", "/artikellager/10", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+}
+
 func TestUpdateArtikel(t *testing.T) {
 
 	req, _ := http.NewRequest("GET", "/artikel/10", nil)
@@ -128,4 +138,18 @@ func TestUpdateArtikel(t *testing.T) {
 	if m["eancode"] == originalArtikel["eancode"] {
 		t.Errorf("Expected the eancode to change from '%v' to '%v'. Got '%v'", originalArtikel["eancode"], m["eancode"], m["eancode"])
 	}
+}
+
+func TestCreateLagerumbuchung(t *testing.T) {
+	payload := []byte(`{"BSA_ID_ARTNR":10,"MENGE":10,"BARTLH_ID_INLAGER":6,"BARTLH_ID_VONLAGER":14}`)
+
+	req, _ := http.NewRequest("POST", "/lagerumbuchungen", bytes.NewBuffer(payload))
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusCreated, response.Code)
+
+	var m map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+	fmt.Println(m)
+
 }
