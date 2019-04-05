@@ -42,7 +42,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/lager/{id:[0-9]+}", a.getLager).Methods("GET")
 	a.Router.HandleFunc("/artikel", a.getArtikels).Methods("GET")
 	a.Router.HandleFunc("/artikel/{id:[0-9]+}", a.getArtikel).Methods("GET")
-	a.Router.HandleFunc("/artikel/{id:[0-9]+}", a.updateArtikel).Methods("PUT")
+	a.Router.HandleFunc("/artikel/{id:[0-9]+}", a.updateArtikel2).Methods("PUT")
 
 }
 
@@ -66,7 +66,7 @@ func (a *App) getArtikel(w http.ResponseWriter, r *http.Request) {
 	if err := u.GetArtikel(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			respondWithError(w, http.StatusNotFound, "Artikel not foudn")
+			respondWithError(w, http.StatusNotFound, "Artikel not found")
 		default:
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 		}
@@ -75,14 +75,14 @@ func (a *App) getArtikel(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, u)
 }
 
-func (a *App) updateArtikel(w http.ResponseWriter, r *http.Request) {
+func (a *App) updateArtikel2(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		respondWithError(w, http.StatusBadGateway, "Invalid Artikel ID")
 		return
 	}
-	var u Artikel
+	var u Artikel2
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&u); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -91,7 +91,7 @@ func (a *App) updateArtikel(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	u.ID = id
 
-	if err := u.updateArtikel(a.DB); err != nil {
+	if err := u.updateArtikel2(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

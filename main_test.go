@@ -87,7 +87,7 @@ func TestGetLager(t *testing.T) {
 
 func TestGetArtikel(t *testing.T) {
 
-	req, _ := http.NewRequest("GET", "/artikel/10", nil)
+	req, _ := http.NewRequest("GET", "/artikel/12", nil)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
@@ -107,22 +107,20 @@ func TestArtikel(t *testing.T) {
 
 func TestUpdateArtikel(t *testing.T) {
 
-	req, _ := http.NewRequest("GET", "/artikel/12", nil)
+	req, _ := http.NewRequest("GET", "/artikel/10", nil)
 	response := executeRequest(req)
 
 	var originalArtikel map[string]interface{}
 	json.Unmarshal(response.Body.Bytes(), &originalArtikel)
 
 	payload := []byte(`{"eancode": "888888888"}`)
-
-	req, _ = http.NewRequest("PUT", "/artikel/12", bytes.NewBuffer(payload))
+	req, _ = http.NewRequest("PUT", "/artikel/10", bytes.NewBuffer(payload))
 	response = executeRequest(req)
 
 	checkResponseCode(t, http.StatusOK, response.Code)
 
 	var m map[string]interface{}
 	json.Unmarshal(response.Body.Bytes(), &m)
-
 	if m["id"] != originalArtikel["id"] {
 		t.Errorf("Expected the id to remain the same (%v). Got %v", originalArtikel["id"], m["id"])
 	}

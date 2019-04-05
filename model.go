@@ -39,6 +39,17 @@ func getLagers(db *sqlx.DB) ([]lager, error) {
 	return lagers, nil
 }
 
+type Artikel2 struct {
+	ID  int    `json:"ID"`
+	EAN string `json:"eancode"`
+}
+
+func (u *Artikel2) updateArtikel2(db *sqlx.DB) error {
+	statment := fmt.Sprintf("UPDATE BSA SET eancode='%s' WHERE id=%d", u.EAN, u.ID)
+	_, err := db.Exec(statment)
+	return err
+}
+
 type Artikel struct {
 	ID         int            `json:"ID"`
 	ArtikelNr  string         `json:"maskenkey"`
@@ -60,7 +71,6 @@ func getArtikelsTest(db *sqlx.DB) ([]Artikel, error) {
 }
 
 func getArtikels(db *sqlx.DB) ([]Artikel, error) {
-	//statement := fmt.Sprintf("SELECT id,maskenkey,artbez,eancode FROM BSA")
 	rows, err := db.Queryx("SELECT ID,maskenkey,artbez,eancode FROM BSA")
 
 	if err != nil {
@@ -73,26 +83,9 @@ func getArtikels(db *sqlx.DB) ([]Artikel, error) {
 	for rows.Next() {
 		var u Artikel
 		if err := rows.Scan(&u.ID, &u.ArtikelNr, &u.ArtikelBez, &u.EAN); err != nil {
-			//if err := rows.StructScan(&u); err != nil {
 			return nil, err
 		}
 		artikels = append(artikels, u)
 	}
 	return artikels, nil
-}
-
-func (u *Artikel) updateArtikel(db *sqlx.DB) error {
-	//statement := fmt.Sprintf()
-	statment := "UPDATE BSA SET eancode = $1 WHERE id=$2"
-	_, err := db.Exec(statment, u.EAN, u.ID)
-	return err
-}
-
-func (u *Artikel) updateArtikelTest(db *sqlx.DB) error {
-	_, err := db.NamedExec(`UPDATE bsa SET eancode=:ean WHERE id=:idd`,
-		map[string]interface{}{
-			"ean": u.EAN,
-			"idd": u.ID,
-		})
-	return err
 }
