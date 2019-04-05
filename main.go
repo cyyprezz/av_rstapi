@@ -1,6 +1,10 @@
 package main
 
-//C:\\privbackup.FDB"
+// Hier den Pfad zur Datenbank hinterlegen
+// Sobald der Pfad hinterlegt ist
+// kann man die Applikation via go build kompilieren
+// anschließend kann man die Anwendung starten z.B ./rest-api
+
 func main() {
 
 	a := App{}

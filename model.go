@@ -1,5 +1,9 @@
 package main
 
+// Hier werden die Models die für die App nötig sind programmiert
+// Datenbankzugriffe ausgehend von den Models
+// Models deffinieren die Datenfelder die später via Json abgerufen werden können
+
 import (
 	"database/sql"
 	"fmt"

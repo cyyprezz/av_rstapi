@@ -14,17 +14,16 @@ import (
 	_ "github.com/nakagami/firebirdsql"
 )
 
+//Initialisierung der Applikation
 type App struct {
 	Router *mux.Router
-	//DB     *sql.DB
-	DB *sqlx.DB
+	DB     *sqlx.DB
 }
 
 func (a *App) Initialize(user, password, dbname string) {
 	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
 
 	var err error
-	//a.DB, err = sql.Open("firebirdsql", connectionString)
 	a.DB, err = sqlx.Open("firebirdsql", connectionString)
 	if err != nil {
 		log.Fatal(err)
@@ -37,6 +36,10 @@ func (a *App) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, a.Router))
 }
 
+// Festlegung der Routen- neue können hinzugefügt werden
+// Für die Routen müssen Handler und Models mit Datenbankzugriffen programmiert werden
+// Die Routen kann man nach starten der API im Browser,Postman etc.. aufrufen
+// z.B http://localhost/lager -> Alle Lager o. http://localhost/artikel/10 -> Artikel mit ID 10
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/lager", a.getLagers).Methods("GET")
 	a.Router.HandleFunc("/lager/{id:[0-9]+}", a.getLager).Methods("GET")
@@ -47,6 +50,9 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/lagerumbuchungen", a.createLagerumbuchung).Methods("POST")
 
 }
+
+//Dieser Handler holt den Ist-Bestand von einem Einzellager
+//ausgehend von der Artikel-ID
 func (a *App) getEinzellagerbyArtikel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -69,6 +75,7 @@ func (a *App) getEinzellagerbyArtikel(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Dieser Handler stellt alle Artikel berreit
 func (a *App) getArtikels(w http.ResponseWriter, r *http.Request) {
 	products, err := getArtikels(a.DB)
 	if err != nil {
@@ -78,6 +85,7 @@ func (a *App) getArtikels(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, products)
 }
 
+//Dieser Handler stellt einen spezifischen Artikel berreit
 func (a *App) getArtikel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -98,6 +106,7 @@ func (a *App) getArtikel(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, u)
 }
 
+//Mit diesem Handler kann einem Artikel eine EAN-Nummer hinzugefügt werden
 func (a *App) updateArtikel2(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -121,6 +130,7 @@ func (a *App) updateArtikel2(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, u)
 }
 
+//Dieser Handler stellt alle Lager berreit
 func (a *App) getLagers(w http.ResponseWriter, r *http.Request) {
 	products, err := getLagers(a.DB)
 	if err != nil {
@@ -130,6 +140,7 @@ func (a *App) getLagers(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, products)
 }
 
+//Ein spezfisches Lager
 func (a *App) getLager(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -150,6 +161,7 @@ func (a *App) getLager(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, u)
 }
 
+//Hier wird via Insert Into eine Lagerumbuchung im System erstellt.
 func (a *App) createLagerumbuchung(w http.ResponseWriter, r *http.Request) {
 	var u Lagerumbuchungen
 	decoder := json.NewDecoder(r.Body)

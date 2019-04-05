@@ -1,5 +1,9 @@
 package main
 
+//Tests für alle Komponenten der API - wenn die API auf die jeweilige Datenbank konfiguierit ist
+//Kann man mit go test -v den Status der einzelenen Komponenten prüfen
+//Der Test muss im Projektverzeichnis gestartet werden
+
 import (
 	"bytes"
 	"encoding/json"
