@@ -6,10 +6,14 @@ go:
 - tip
 
 services: 
-- firebirdsql
+- firebird 2.5
  
  install:
 - got get github.com/jmoiron/sqlx
 - got get github.com/gorilla/mux
 - go get github.com/nakagami/firebirdsql
+
+script:
+  - go test -covermode=count -coverprofile=coverage.out
+  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci
 
