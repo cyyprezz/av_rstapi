@@ -7,8 +7,16 @@ go:
 
 services: 
 - firebirdsql
- 
- install:
+
+before_install:
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /etc/lsb-release; fi
+- sudo apt-get update -qq
+- sudo apt-get install -qq firebird2.5-super firebird2.5-dev
+- sudo sed /ENABLE_FIREBIRD_SERVER=/s/no/yes/ -i /etc/default/firebird2.5
+- cat /etc/default/firebird2.5 | grep ENABLE_FIREBIRD_SERVER
+- sudo service firebird2.5-super star
+
+install:
 - got get github.com/jmoiron/sqlx
 - got get github.com/gorilla/mux
 - go get github.com/nakagami/firebirdsql
@@ -18,6 +26,6 @@ services:
 - go get gitlab.com/nyarla/go-crypt
 
 script:
-  - go test -covermode=count -coverprofile=coverage.out
-  - $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci
+- go test -covermode=count -coverprofile=coverage.out
+- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci
 
