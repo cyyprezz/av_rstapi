@@ -9,8 +9,8 @@ services:
 - firebirdsql
 
 install:
-- got get github.com/jmoiron/sqlx
-- got get github.com/gorilla/mux
+- go get github.com/jmoiron/sqlx
+- go get github.com/gorilla/mux
 - go get github.com/nakagami/firebirdsql
 - go get github.com/cznic/mathutil
 - go get github.com/kardianos/osext
