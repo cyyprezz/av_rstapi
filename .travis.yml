@@ -11,12 +11,8 @@ services:
 install:
 - go get github.com/jmoiron/sqlx
 - go get github.com/gorilla/mux
-- go get github.com/nakagami/firebirdsql
 - go get github.com/cznic/mathutil
 - go get github.com/kardianos/osext
 - go get github.com/shopspring/decimal
 - go get gitlab.com/nyarla/go-crypt
-
-script:
-- go test -covermode=count -coverprofile=coverage.out
-- $HOME/gopath/bin/goveralls -coverprofile=coverage.out -service=travis-ci
+- go get github.com/nakagami/firebirdsql
