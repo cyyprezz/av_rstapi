@@ -21,7 +21,7 @@ type App struct {
 }
 
 func (a *App) Initialize(user, password, dbname string) {
-	connectionString := fmt.Sprintf("%s:%s@/%s", user, password, dbname)
+	connectionString := fmt.Sprintf("%s:%s@%s", user, password, dbname)
 
 	var err error
 	a.DB, err = sqlx.Open("firebirdsql", connectionString)
@@ -30,6 +30,7 @@ func (a *App) Initialize(user, password, dbname string) {
 	}
 	a.Router = mux.NewRouter()
 	a.initializeRoutes()
+	fmt.Println("API RUNS DATABASE: " + connectionString)
 }
 
 func (a *App) Run(addr string) {
@@ -189,3 +190,5 @@ func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.WriteHeader(code)
 	w.Write(response)
 }
+
+//ABCDEFG
