@@ -145,3 +145,6 @@ func (u *Lagerumbuchungen) createLagerumbuchung(db *sqlx.DB) error {
 	}
 	return nil
 }
+func test(){
+	
+}
